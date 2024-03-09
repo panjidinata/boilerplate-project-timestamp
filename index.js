@@ -23,7 +23,34 @@ app.get("/api/hello", function (req, res) {
   res.json({ greeting: "hello API" });
 });
 
+app.get("/api/", function (req, res) {
+  const currUnix = Date.now();
+  const currUTC = new Date(currUnix).toUTCString();
 
+  res.json({ unix: currUnix, utc: currUTC });
+});
+
+app.get("/api/:date", function (req, res) {
+  const dateParam = req.params.date.toString();
+  let utcTime;
+  let unixTime;
+
+  // kondisi pertama akan dijalankan jika nilai parameter adalah unix epoch.
+  // kondisi kedua akan dijalankan jika nilai parameter adalah string dengan
+  // format tanggal yang valid.
+
+  if (!isNaN(new Date(Number(dateParam)))) {
+    unixTime = new Date(Number(dateParam)).valueOf();
+    utcTime = new Date(Number(dateParam)).toUTCString();
+  } else if (!isNaN(Date.parse(dateParam))) {
+    utcTime = new Date(dateParam).toUTCString();
+    unixTime = new Date(dateParam).valueOf();
+  } else {
+    res.json({ error: "Invalid Date" });
+  }
+
+  res.json({ unix: unixTime, utc: utcTime });
+});
 
 // Listen on port set in environment variable or default to 3000
 var listener = app.listen(process.env.PORT || 3000, function () {
